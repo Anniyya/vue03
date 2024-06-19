@@ -20,6 +20,11 @@
               ><i class="el-icon-pie-chart"></i>销量统计</template
             >
           </el-menu-item>
+          <el-menu-item router index="/pictures">
+            <template slot="title"
+              ><i class="el-icon-picture-outline"></i>轮播图管理</template
+            >
+          </el-menu-item>
           <el-submenu index="1">
             <template slot="title"
               ><i class="el-icon-food"></i>菜品管理</template
@@ -35,24 +40,16 @@
             >
             <el-menu-item-group>
               <el-menu-item index="/customer">用户总览</el-menu-item>
-              <el-menu-item index="2-2">选项2</el-menu-item>
+              <el-menu-item index="/check">注册审核</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
           <el-submenu index="3">
             <template slot="title"
-              ><i class="el-icon-s-claim"></i>订单管理</template
+              ><i class="el-icon-shopping-cart-2"></i>订单管理</template
             >
             <el-menu-item-group>
-              <el-menu-item index="3-1">订单总览</el-menu-item>
-              <el-menu-item index="3-2">未处理订单</el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
-          <el-submenu index="4">
-            <template slot="title"
-              ><i class="el-icon-picture-outline"></i>轮播图管理</template
-            >
-            <el-menu-item-group>
-              <el-menu-item index="4-1">图片管理</el-menu-item>
+              <el-menu-item index="/order">订单总览</el-menu-item>
+              <el-menu-item index="/untreated">未处理订单</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
         </el-menu>
@@ -67,13 +64,12 @@
           "
         >
           <el-dropdown>
-            <i class="el-icon-arrow-down" style="margin-right: 15px"></i>
+            <i class="el-icon-user-solid" style="margin-right: 15px"></i>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>个人主页</el-dropdown-item>
               <el-dropdown-item>退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-          <span>csy</span>
+          <span>你好, csy</span>
         </el-header>
 
         <el-main>

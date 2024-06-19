@@ -11,16 +11,11 @@
         <el-button class="ml-5" @click="load">搜索</el-button>
         <el-button class="ml-5" @click="reset">重置</el-button>
       </div>
-
       <div style="margin: 10px 0">
-        <el-button type="danger" @click="deleteSelected"
-          >批量删除 <i class="el-icon-remove-outline"></i
+        <el-button type="primary" @click="passSelected"
+          >批量通过 <i class="el-icon-circle-check"></i
         ></el-button>
-        <!-- <el-button type="primary" @click="exportData"
-          >导出 <i class="el-icon-top"></i
-        ></el-button> -->
       </div>
-
       <el-table
         :data="tableData"
         @selection-change="handleSelectionChange"
@@ -43,11 +38,11 @@
         <el-table-column prop="cstatus" label="审核状态"></el-table-column>
         <el-table-column prop="operate" label="操作">
           <template slot-scope="scope">
-            <el-button type="success" @click="openEditDialog(scope.row)"
-              >编辑<i class="el-icon-edit"></i
+            <el-button type="success" @click="passCheck(scope.row)"
+              >通过<i class="el-icon-circle-check"></i
             ></el-button>
-            <el-button type="danger" @click="deleteCustomer(scope.row)"
-              >删除<i class="el-icon-delete"></i
+            <el-button type="danger" @click="deleteCheck(scope.row)"
+              >驳回<i class="el-icon-circle-close"></i
             ></el-button>
           </template>
         </el-table-column>
@@ -65,30 +60,6 @@
         ></el-pagination>
       </div>
     </div>
-
-    <el-dialog :visible.sync="editDialogVisible" title="编辑客户信息">
-      <el-form :model="editForm">
-        <el-form-item label="账号" :label-width="formLabelWidth">
-          <el-input v-model="editForm.cid" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="姓名" :label-width="formLabelWidth">
-          <el-input v-model="editForm.cname"></el-input>
-        </el-form-item>
-        <el-form-item label="性别" :label-width="formLabelWidth">
-          <el-input v-model="editForm.csex"></el-input>
-        </el-form-item>
-        <el-form-item label="生日" :label-width="formLabelWidth">
-          <el-input v-model="editForm.cbirth"></el-input>
-        </el-form-item>
-        <el-form-item label="电话" :label-width="formLabelWidth">
-          <el-input v-model="editForm.cphone"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="editDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="updateCustomer">保存</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -96,22 +67,15 @@
 import axios from "axios";
 
 export default {
-  name: "customer",
+  name: "check",
   data() {
     return {
       tableData: [],
       total: 0,
       pageNum: 1,
       pageSize: 10,
+      cstatus: "",
       cname: "",
-      editDialogVisible: false,
-      editForm: {
-        cid: "",
-        cname: "",
-        csex: "",
-        cbirth: "",
-        cphone: "",
-      },
       formLabelWidth: "120px",
       selectedCustomers: [], // 选中的客户
     };
@@ -122,7 +86,7 @@ export default {
   methods: {
     load() {
       axios
-        .get("http://localhost:8077/selectbyname", {
+        .get("http://localhost:8077/selectbyname2", {
           params: {
             pageNum: this.pageNum,
             pageSize: this.pageSize,
@@ -150,29 +114,12 @@ export default {
       this.pageNum = 1;
       this.load();
     },
-    openEditDialog(customer) {
-      this.editForm = { ...customer };
-      this.editDialogVisible = true;
+    handleSelectionChange(val) {
+      console.log(val);
+      this.selectedCustomers = val;
     },
-    updateCustomer() {
-      axios
-        .post("http://localhost:8077/insertcustomer", this.editForm)
-        .then((res) => {
-          if (res.data === "成功") {
-            this.load();
-            this.$message.success("更新成功");
-            this.editDialogVisible = false;
-          } else {
-            this.$message.error("更新失败");
-          }
-        })
-        .catch((error) => {
-          console.error("Error updating customer:", error);
-          this.$message.error("更新失败");
-        });
-    },
-    deleteCustomer(customer) {
-      this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
+    deleteCheck(customer) {
+      this.$confirm("此操作将驳回该用户, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -185,30 +132,59 @@ export default {
             .then((res) => {
               if (res.data === 1) {
                 this.load();
-                this.$message.success("删除成功");
+                this.$message.success("驳回成功");
               } else {
-                this.$message.error("删除失败");
+                this.$message.error("驳回失败");
               }
             })
             .catch((error) => {
               console.error("Error deleting customer:", error);
-              this.$message.error("删除失败");
+              this.$message.error("驳回失败");
             });
         })
         .catch(() => {
-          this.$message.info("取消删除");
+          this.$message.info("取消驳回");
         });
     },
-    handleSelectionChange(val) {
-      console.log(val);
-      this.selectedCustomers = val;
+    passCheck(customer) {
+      this.$confirm("是否确认通过审核", "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          axios
+            .post("http://localhost:8077/insertcustomer", {
+              cid: customer.cid,
+              cstatus: "已通过", // 添加cstatus参数，设置为"已通过"
+              cname: customer.cname,
+              csex: customer.csex,
+              cbirth: customer.cbirth,
+              cphone: customer.cphone,
+            })
+            .then((res) => {
+              if (res.data === "成功") {
+                this.load();
+                this.$message.success("审核通过成功");
+              } else {
+                this.$message.error("审核失败");
+              }
+            })
+            .catch((error) => {
+              console.error("Error passing customer check:", error);
+              this.$message.error("审核失败");
+            });
+        })
+        .catch(() => {
+          this.$message.info("取消审核");
+        });
     },
-    deleteSelected() {
+    passSelected() {
       if (this.selectedCustomers.length === 0) {
-        this.$message.warning("请先选择要删除的顾客");
+        this.$message.warning("请先选择要通过审核的顾客");
         return;
       }
-      this.$confirm("此操作将永久删除选中的用户, 是否继续?", "提示", {
+      this.$confirm("此操作将审核通过用户, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -217,7 +193,7 @@ export default {
           let ids = this.selectedCustomers.map((customer) => customer.cid);
           console.log(ids);
           axios
-            .post("http://localhost:8077/deletebatch", ids, {
+            .post("http://localhost:8077/checkbatch", ids, {
               headers: {
                 "Content-Type": "application/json",
               },
@@ -226,42 +202,20 @@ export default {
               console.log(res.data); // 打印响应数据
               if (res.data === 1) {
                 this.load();
-                this.$message.success("删除成功");
+                this.$message.success("通过审核成功");
               } else {
-                this.$message.error("删除失败");
+                this.$message.error("通过审核失败");
               }
             })
             .catch((error) => {
               console.error("Error deleting customers:", error);
-              this.$message.error("删除失败");
+              this.$message.error("通过审核失败");
             });
         })
         .catch(() => {
-          this.$message.info("取消删除");
+          this.$message.info("取消审核");
         });
     },
-
-    // exportData() {
-    //   axios
-    //     .get("http://localhost:8077/exportcustomers", {
-    //       responseType: "blob",
-    //     })
-    //     .then((res) => {
-    //       const blob = new Blob([res.data], {
-    //         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    //       });
-    //       const link = document.createElement("a");
-    //       link.href = URL.createObjectURL(blob);
-    //       link.download = "customers.xlsx";
-    //       link.click();
-    //       URL.revokeObjectURL(link.href);
-    //       this.$message.success("导出成功");
-    //     })
-    //     .catch((error) => {
-    //       console.error("Error exporting customers:", error);
-    //       this.$message.error("导出失败");
-    //     });
-    // },
   },
 };
 </script>

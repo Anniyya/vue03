@@ -5,6 +5,7 @@ import manager from "@/components/manager.vue";
 import category from "@/components/category.vue";
 import customer from "@/components/customer.vue";
 import statistics from "@/components/statistics.vue";
+import check from "@/components/check.vue";
 
 Vue.use(VueRouter);
 
@@ -14,6 +15,7 @@ const router = new VueRouter({
     { path: "/category", component: category },
     { path: "/customer", component: customer },
     { path: "/statistics", component: statistics },
+    { path: "/check", component: check },
     // { path: "/", component: manager },
   ],
 });
