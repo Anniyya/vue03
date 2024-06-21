@@ -8,6 +8,7 @@ import statistics from "@/components/statistics.vue";
 import check from "@/components/check.vue";
 import order from "@/components/order.vue";
 import untreated from "@/components/untreated.vue";
+import pictures from "@/components/pictures.vue";
 
 Vue.use(VueRouter);
 
@@ -19,7 +20,8 @@ const router = new VueRouter({
     { path: "/statistics", component: statistics },
     { path: "/check", component: check },
     { path: "/order", component: order },
-    { path: "/untreated", component: untreated }
+    { path: "/untreated", component: untreated },
+    { path: "/pictures", component: pictures },
     // { path: "/", component: manager },
   ],
 });
