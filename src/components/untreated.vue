@@ -54,7 +54,16 @@
           label="备注"
           width="120"
         ></el-table-column>
-        <el-table-column prop="cid" label="顾客id" width="120"></el-table-column>
+        <el-table-column
+          prop="way"
+          label="用餐方式"
+          width="100"
+        ></el-table-column>
+        <el-table-column
+          prop="cid"
+          label="顾客id"
+          width="120"
+        ></el-table-column>
         <el-table-column prop="operate" label="操作">
           <template slot-scope="scope">
             <el-button type="success" @click="overOrder(scope.row)"
@@ -137,16 +146,16 @@ export default {
       })
         .then(() => {
           axios
-            .post("http://localhost:8077/overOrder", {
+            .post("http://localhost:8077/updateOrder", {
               oid: untreated.oid,
               ostatus: "已完成", // 添加ostatus参数，设置为"已完成"
-            //   ocontent: untreated.ocontent,
-            //   createtime: untreated.createtime,
-            //   overtime: untreated.overtime,
-            //   ostatus: untreated.ostatus,
-            //   remark: untreated.remark,
-            //   sum: untreated.sum,
-            //   cid: untreated.cid,
+              //   ocontent: untreated.ocontent,
+              //   createtime: untreated.createtime,
+              //   overtime: untreated.overtime,
+              //   ostatus: untreated.ostatus,
+              //   remark: untreated.remark,
+              //   sum: untreated.sum,
+              //   cid: untreated.cid,
             })
             .then((res) => {
               if (res.data === "成功") {

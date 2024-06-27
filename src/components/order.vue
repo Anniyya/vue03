@@ -21,19 +21,20 @@
       :data="tableData"
       @selection-change="handleSelectionChange"
       ref="multipleTable"
-       :default-sort = "{prop: 'ostatus', order: 'descending'}"
+      :default-sort="{ prop: 'ostatus', order: 'descending' }"
     >
       <el-table-column type="selection" width="55"></el-table-column>
-      <el-table-column
-        prop="oid"
-        label="订单编号"
-        width="120"
-      ></el-table-column>
+      <el-table-column prop="oid" label="订单编号" width="80"></el-table-column>
       <el-table-column
         prop="sum"
         label="订单总价"
-        width="120"
+        width="100"
         sortable
+      ></el-table-column>
+      <el-table-column
+        prop="createtime"
+        label="下单时间"
+        width="180"
       ></el-table-column>
       <el-table-column
         prop="overtime"
@@ -52,7 +53,13 @@
         width="120"
       ></el-table-column>
       <el-table-column prop="remark" label="备注" width="120"></el-table-column>
-      <el-table-column prop="cid" label="顾客id" width="120"></el-table-column>
+      <el-table-column
+        prop="way"
+        label="用餐方式"
+        width="100"
+        sortable
+      ></el-table-column>
+      <el-table-column prop="cid" label="顾客id" width="80"></el-table-column>
       <el-table-column prop="operate" label="操作">
         <template slot-scope="scope">
           <el-button type="success" @click="openEditDialog(scope.row)">
@@ -88,25 +95,14 @@
         <el-form-item label="订单内容">
           <el-input type="textarea" v-model="editForm.ocontent"></el-input>
         </el-form-item>
-        <el-form-item label="活动时间">
-          <el-row>
-            <el-col :span="11">
-              <el-date-picker
-                type="date"
-                placeholder="选择日期"
-                v-model="editForm.date1"
-                style="width: 100%"
-              ></el-date-picker>
-            </el-col>
-            <el-col class="line" :span="2" style="text-align: center">-</el-col>
-            <el-col :span="11">
-              <el-time-picker
-                placeholder="选择时间"
-                v-model="editForm.date2"
-                style="width: 100%"
-              ></el-time-picker>
-            </el-col>
-          </el-row>
+        <el-form-item label="完成时间">
+          <el-date-picker
+            v-model="editForm.overtime"
+            type="datetime"
+            placeholder="选择完成订单时间"
+            default-time="12:00:00"
+          >
+          </el-date-picker>
         </el-form-item>
         <el-form-item label="订单状态">
           <el-radio-group v-model="editForm.ostatus">
@@ -117,6 +113,12 @@
         </el-form-item>
         <el-form-item label="备注">
           <el-input type="textarea" v-model="editForm.remark"></el-input>
+        </el-form-item>
+        <el-form-item label="用餐方式">
+          <el-radio-group v-model="editForm.way">
+            <el-radio label="堂食"></el-radio>
+            <el-radio label="打包"></el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="总价">
           <el-input v-model="editForm.sum"></el-input>
@@ -132,6 +134,7 @@
 
 <script>
 import axios from "axios";
+import moment from 'moment';
 
 export default {
   name: "order",
@@ -142,15 +145,15 @@ export default {
       pageNum: 1,
       pageSize: 10,
       overtime: "",
+      value3: "",
       editDialogVisible: false,
       editForm: {
         oid: "",
         cid: "",
         ocontent: "",
-        date1: "",
-        date2: "",
         ostatus: "",
         remark: "",
+        way: "",
         sum: "",
       },
       formLabelWidth: "120px",
@@ -209,9 +212,9 @@ export default {
         })
           .then(() => {
             const ids = this.selectedOrders.map((order) => order.oid);
-            console.log(ids)
+            console.log(ids);
             axios
-              .post("http://localhost:8077/deleteorders",ids)
+              .post("http://localhost:8077/deleteorders", ids)
               .then((res) => {
                 if (res.data === 1) {
                   this.load();
@@ -231,36 +234,49 @@ export default {
       }
     },
     openEditDialog(order) {
-      const [date, time] = order.overtime.split(" ");
-      const date1 = date; // 只取日期部分
-      const date2 = time; // 只取时间部分
-
-      this.editForm = {
-        ...order,
-        date1: date1,
-        date2: time,
-      };
+      this.editForm = { ...order };
       this.editDialogVisible = true;
     },
     updateOrder() {
-      const { date1, date2 } = this.editForm;
-      // 确保date2仅包含时间部分
-      const time = new Date(date2).toTimeString().split(" ")[0];
-      this.editForm.overtime = `${date1} ${time}`;
+      // 验证表单数据
+      if (
+        !this.editForm.oid ||
+        !this.editForm.cid ||
+        !this.editForm.ocontent ||
+        !this.editForm.overtime ||
+        !this.editForm.ostatus ||
+        !this.editForm.sum
+      ) {
+        this.$message.error("请填写完整的订单信息");
+        return;
+      }
+      // 将完成时间转换为 'YYYY-MM-DD HH:mm:ss' 格式
+      const overtimeFormatted = moment(this.editForm.overtime).format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
       axios
-        .post("http://localhost:8077/updateorder", this.editForm)
+        .post("http://localhost:8077/updateorder", {
+          oid: this.editForm.oid,
+          ocontent: this.editForm.ocontent,
+          createtime: this.editForm.createtime,
+          overtime: overtimeFormatted,
+          ostatus: this.editForm.ostatus,
+          remark: this.editForm.remark,
+          sum: this.editForm.sum,
+          cid: this.editForm.cid,
+          way: this.editForm.way,
+        })
         .then((res) => {
           if (res.data === "成功") {
             this.load();
             this.$message.success("更新成功");
             this.editDialogVisible = false;
+            this.loadOrders(); // 重新加载订单数据
           } else {
             this.$message.error("更新失败");
           }
         })
         .catch((error) => {
-          console.error("Error updating order:", error);
-          this.$message.error("更新失败");
         });
     },
 

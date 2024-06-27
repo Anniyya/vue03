@@ -15,23 +15,22 @@
           <div style="height: 60px; line-height: 60px; text-align: center">
             <b style="color: white">商家后台管理</b>
           </div>
-          <el-menu-item router index="/statistics">
+          <el-submenu index="4">
             <template slot="title"
-              ><i class="el-icon-pie-chart"></i>销量统计</template
+              ><i class="el-icon-pie-chart"></i>统计反馈</template
             >
-          </el-menu-item>
-          <el-menu-item router index="/pictures">
-            <template slot="title"
-              ><i class="el-icon-picture-outline"></i>轮播图管理</template
-            >
-          </el-menu-item>
+            <el-menu-item-group>
+              <el-menu-item index="/statistics">销量统计</el-menu-item>
+              <el-menu-item index="/review">用户留言</el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+
           <el-submenu index="1">
             <template slot="title"
               ><i class="el-icon-food"></i>菜品管理</template
             >
             <el-menu-item-group>
               <el-menu-item index="/dish">菜品总览</el-menu-item>
-              <el-menu-item index="/category">类目管理</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
           <el-submenu index="2">
@@ -52,6 +51,11 @@
               <el-menu-item index="/untreated">未处理订单</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
+          <el-menu-item router index="/pictures">
+            <template slot="title"
+              ><i class="el-icon-picture-outline"></i>轮播图管理</template
+            >
+          </el-menu-item>
         </el-menu>
       </el-aside>
       <el-container>
@@ -92,5 +96,4 @@
 }
 </style>
 
-<script>
-</script>
+<script></script>

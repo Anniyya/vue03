@@ -1,82 +1,99 @@
 <template>
-    <div class="container">
-            <div class="login-wrapper">
-                <div class="header">Login</div>
-                <div class="form-wrapper">
-                    <input type="text" name="username" placeholder="username" class="input-item">
-                    <input type="password" name="password" placeholder="password" class="input-item">
-                    <div class="btn">Login</div>
-                </div>
-            </div>
-        </div>
+  <div class="login-container">
+    <el-form ref="form" :model="form" label-width="80px" class="login-form">
+      <h2 class="form-title">管理员登录</h2>
+      <el-form-item label="管理员ID">
+        <el-input v-model="form.aid" placeholder="请输入管理员ID"></el-input>
+      </el-form-item>
+      <el-form-item label="管理员密码">
+        <el-input
+          v-model="form.pwd"
+          type="password"
+          placeholder="请输入管理员密码"
+        ></el-input>
+      </el-form-item>
+
+      <el-form-item class="form-button">
+        <el-button type="primary" @click="onSubmit">立即登录</el-button>
+        <el-button @click="resetForm">重置</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
- 
+
 <script>
-    export default {
-        name:"Login"
-    }
+import axios from "axios";
+
+export default {
+  name: "Login",
+  data() {
+    return {
+      form: {
+        aid: "",
+        pwd: "",
+      },
+      loginMessage: "",
+    };
+  },
+  methods: {
+    onSubmit() {
+      axios
+        .get("http://localhost:8077/admin/findadminbyaidpwd", {
+          params: {
+            aid: this.form.aid,
+            apwd: this.form.pwd,
+          },
+        })
+        .then((res) => {
+          console.log(res.data);
+          this.loginMessage = res.data.msg;
+
+          if (this.loginMessage === "查询成功") {
+            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("admin", JSON.stringify(res.data.admin));
+            this.$router.push("/statistics");
+          } else {
+            alert("登录失败，请重试");
+          }
+        })
+        .catch((error) => {
+          console.error("登录请求出错:", error);
+          alert("登录失败，请重试");
+        });
+    },
+    resetForm() {
+      this.form.aid = "";
+      this.form.pwd = "";
+    },
+  },
+};
 </script>
- 
+
 <style scoped>
- 
-html {
-    height: 100%;
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5;
 }
-body {
-    height: 100%;
+
+.login-form {
+  width: 400px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
-.container {
-    /* margin-top: 5%; */
-    height: 980px;
-    width: 100%;
-    background-image: linear-gradient(to right, #fbc2eb, #a6c1ee);
+
+.form-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
 }
-.login-wrapper {
-    background-color: #fff;
-    width: 358px;
-    height: 588px;
-    border-radius: 15px;
-    padding: 0 50px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+
+.form-button {
+  text-align: center;
+  margin-top: 20px;
 }
-.header {
-    font-size: 38px;
-    font-weight: bold;
-    text-align: center;
-    line-height: 200px;
-}
-.input-item {
-    display: block;
-    width: 100%;
-    margin-bottom: 20px;
-    border: 0;
-    padding: 10px;
-    border-bottom: 1px solid rgb(128, 125, 125);
-    font-size: 15px;
-    outline: none;
-}
-.input-item:placeholder {
-    text-transform: uppercase;
-}
-.btn {
-    text-align: center;
-    padding: 10px;
-    margin: 0 auto;
-    width: 100%;
-    margin-top: 40px;
-    background-image: linear-gradient(to right, #a6c1ee, #fbc2eb);
-    color: #fff;
-}
-.msg {
-    text-align: center;
-    line-height: 88px;
-}
-a {
-    text-decoration-line: none;
-    color: #abc1ee;
-}
- 
 </style>

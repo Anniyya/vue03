@@ -1,6 +1,68 @@
 <template>
   <div>
-    <div id="main" style="width: 600px; height: 400px"></div>
+    <div id="numbers-container">
+      <el-row :gutter="20">
+        <el-col :span="6">
+          <div>
+            <el-statistic
+              group-separator=","
+              :precision="2"
+              :value="value2"
+              :title="title"
+            ></el-statistic>
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div>
+            <el-statistic title="男女比">
+              <template slot="formatter"> 456/2 </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div>
+            <el-statistic
+              group-separator=","
+              :precision="2"
+              decimal-separator="."
+              :value="value1"
+              :title="title"
+            >
+              <template slot="prefix">
+                <i class="el-icon-s-flag" style="color: red"></i>
+              </template>
+              <template slot="suffix">
+                <i class="el-icon-s-flag" style="color: blue"></i>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div>
+            <el-statistic :value="like ? 521 : 520" title="Feedback">
+              <template slot="suffix">
+                <span @click="like = !like" class="like">
+                  <i
+                    class="el-icon-star-on"
+                    style="color: red"
+                    v-show="!!like"
+                  ></i>
+                  <i class="el-icon-star-off" v-show="!like"></i>
+                </span>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+    <div
+      id="charts-container"
+      style="display: flex; justify-content: space-around; width: 100%"
+    >
+      <div id="main" style="width: 600px; height: 400px"></div>
+      <div id="pie" style="width: 600px; height: 400px"></div>
+      <!-- 添加饼图的容器 -->
+    </div>
   </div>
 </template>
 
@@ -10,6 +72,14 @@ import axios from "axios";
 
 export default {
   name: "Statistics",
+  data() {
+    return {
+      like: true,
+      value1: 4154.564,
+      value2: 1314,
+      title: "增长人数",
+    };
+  },
   mounted() {
     // 使用axios获取后端数据
     axios
@@ -47,6 +117,47 @@ export default {
         var chartDom = document.getElementById("main");
         var myChart = echarts.init(chartDom);
         myChart.setOption(option);
+
+        // 添加饼图
+        var pieDom = document.getElementById("pie");
+        var pieChart = echarts.init(pieDom);
+        var pieOption = {
+          title: {
+            text: "Referer of a Website",
+            subtext: "Fake Data",
+            left: "center",
+          },
+          tooltip: {
+            trigger: "item",
+          },
+          legend: {
+            orient: "vertical",
+            left: "left",
+          },
+          series: [
+            {
+              name: "Access From",
+              type: "pie",
+              radius: "50%",
+              data: [
+                { value: 1048, name: "Search Engine" },
+                { value: 735, name: "Direct" },
+                { value: 580, name: "Email" },
+                { value: 484, name: "Union Ads" },
+                { value: 300, name: "Video Ads" },
+              ],
+              emphasis: {
+                itemStyle: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: "rgba(0, 0, 0, 0.5)",
+                },
+              },
+            },
+          ],
+        };
+
+        pieChart.setOption(pieOption);
       })
       .catch((error) => {
         console.error("Failed to fetch data:", error);
@@ -56,5 +167,9 @@ export default {
 </script>
 
 <style>
-/* 可以添加一些样式，例如设置图表容器的宽高等 */
+.like {
+  cursor: pointer;
+  font-size: 25px;
+  display: inline-block;
+}
 </style>
